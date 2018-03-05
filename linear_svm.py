@@ -28,7 +28,11 @@ def binary_svm_loss(theta, X, y, C):
   # Implement the binary SVM hinge loss function here                        #
   # 4 - 5 lines of vectorized code expected                                  #
   ############################################################################
-
+  C = float(C)
+  J = 1/(2*m)*np.sum(theta**2) + C/m*np.sum(np.maximum(np.zeros([m]),1 - np.multiply(y, np.dot(X, theta.T))))
+  grad = 1/m * theta
+  index = np.multiply(y, np.dot(X, theta.T)) < 1.0
+  grad += C/m * (-np.dot(y[index],X[index]))
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -52,7 +56,7 @@ def svm_loss_naive(theta, X, y, reg):
   - theta: A numpy array of shape d X K containing parameters.
   - X: A numpy array of shape m X d containing a minibatch of data.
   - y: A numpy array of shape (m,) containing training labels; y[i] = k means
-    that X[i] has label k, where 0 <= k < K.
+	that X[i] has label k, where 0 <= k < K.
   - reg: (float) regularization strength
 
   Returns a tuple of:

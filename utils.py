@@ -7,9 +7,14 @@ from sklearn import preprocessing
 #### Implement the Gaussian kernel here ####
 
 def gaussian_kernel(x1,x2,sigma):
-    return 0.
+    return np.exp(-np.sum((x1 - x2)**2)/(2.0*sigma**2))
 
 #### End of your code ####
+def polynomial_kernal(x1, x2, c, k):
+    return (np.inner(x1, x2) + c)**k
+
+def hamming_kernel(x1, x2, sigma):
+    return np.sum((x1 - x2)**2)/(2.0*sigma**2)
 
 # load a mat file
 
