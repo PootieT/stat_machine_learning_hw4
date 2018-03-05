@@ -74,6 +74,24 @@ def svm_loss_naive(theta, X, y, reg):
   # code above to compute the gradient.                                       #
   # 8-10 lines of code expected                                               #
   #############################################################################
+  temps = np.zeros((m,K,K))
+  temp = np.matmul(X,theta)
+  for i in range(m):
+    for j in range(K):
+      for k in range(K):
+        temps[i,j,k] = temp[i,j] - temp[i,k] + delta
+
+  for i in range(m):
+    for j in range(K):
+      if j != y[i] and temps[i,j,y[i]] > 0.0:
+        J += 1.0 / float(m) * temps[i,j,y[i]]
+        dtheta[:,j] += 1.0 / float(m) * X[i,:]
+        dtheta[:,y[i]] -= 1.0 / float(m) * X[i,:]
+
+  for i in range(K):
+    for j in range(theta.shape[0]):
+      J += reg / (2.0) * (theta[j,i] ** 2)
+  dtheta += reg * theta
 
 
 
@@ -100,15 +118,27 @@ def svm_loss_vectorized(theta, X, y, reg):
   dtheta = np.zeros(theta.shape) # initialize the gradient as zero
   delta = 1.0
 
+  K = theta.shape[1] # number of classes
+  m = X.shape[0]     # number of examples
+  d = X.shape[1]
+  
   #############################################################################
   # TODO:                                                                     #
   # Implement a vectorized version of the structured SVM loss, storing the    #
   # result in variable J.                                                     #
   # 8-10 lines of code                                                        #
   #############################################################################
+
+  temp = np.matmul(X, theta).T
+  temp_three = (temp - temp[y, range(m)]).T + delta
   
-
-
+  temp_four = np.maximum(np.zeros(temp_three.shape), temp_three)
+  temp_four[range(m), y] = 0
+  
+  temp_five = np.sum(temp_four, axis = 1)
+  
+  J += 1.0 / float(m) * np.sum(temp_five)
+  J += reg / (2.0) * np.sum(np.square(theta))
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -123,7 +153,13 @@ def svm_loss_vectorized(theta, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-
+  temp_six = np.sign(temp_four)
+  temp_seven = -1.0 * np.sum(temp_six,axis=1).T
+  temp_six[range(m),y] = temp_seven
+  dtheta += np.matmul(X.T, temp_six)
+  dtheta *= 1.0 / float(m)
+  
+  dtheta += reg * theta
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
